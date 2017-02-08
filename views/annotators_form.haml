@@ -1,0 +1,25 @@
+%form#modal-form.annotators{ :onsubmit => 'sendModal("annotators"); return false;', :onreset => 'closeModal(); return false;' }
+  #modal-warning.error_message Every annotator needs a unique name – check your input!
+  %div.modal-form-element
+    %table
+      %tbody
+        %tr
+          %th{ :colspan => 2 } Annotators
+        %tr
+          %th ID
+          %th Name
+          %th Infos
+        - if graph.annotators == []
+          = haml :annotators_form_segment, :locals => {:i => 0}
+        - else
+          - graph.annotators.each_with_index do |annotator, i|
+            = haml :annotators_form_segment, :locals => {:i => i, :annotator => annotator}
+      %tbody
+        %tr
+          %td{:colspan => 2}
+            %button{:onclick => 'newFormSegment("annotators_form_segment", ".annotators"); return false;'}
+              Add annotator
+
+  #modal-submit.bottom-block
+    %input{ :type => 'reset', :value => 'Cancel' }
+    %input{ :type => 'submit', :value => 'Save' }

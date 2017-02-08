@@ -1,0 +1,132 @@
+%html{ :xmlns => "http://www.w3.org/1999/xhtml", "xml:lang" => "en", :lang => "en" }
+  %head
+    %title GraphAnno
+    %meta{'http-equiv' => 'Content-Type', :content => 'text/html; charset=utf-8' }
+    %link{ :rel => 'stylesheet', :type => 'text/css', :href => '/jquery-ui.min.css' }
+    %link{ :rel => "stylesheet", :type => "text/css", :href => "/style.css" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/jquery-2.1.1.min.js" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => '/jquery-ui.min.js' }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => '/caret-position.js' }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => '/viz1.3.0.js', :async => '' }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/sectioning.js" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/log.js" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/box.js" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/autocomplete.js" }
+    %script{ :type => 'text/javascript', :language => 'JavaScript', :src => "/functions.js" }
+
+  %body
+    #graph
+
+    #bottom
+      #textline.bottom-block
+      #meta.bottom-block
+      #cmddiv.bottom-block
+        %form{ :name => "cmd" }
+          %input{ :size => "50", :type => "text", :name => "txtcmd", :id => "txtcmd", :value => "#{request.cookies['traw_cmd'].to_s}", :autocomplete => "off" }
+          %select{ :name => "layer", :id => "layer" }
+            = haml :layer_options, :locals => {:controller => controller}
+          %input{ :type => "submit", :value => "Send" }
+        %div
+          #active_file= "file: #{controller.graph.path}"
+          #current_annotator= if controller.graph.current_annotator then 'annotator: ' + controller.graph.current_annotator.name else 'annotator:' end
+        #documentation
+          %a{ :href => "/documentation/GraphAnno-Documentation_en.pdf"} Documentation
+
+    #sectioning.box{ :'min-height' => 45, :'min-width' => 50 }
+      .handle
+      .content
+
+    #search.box{ :'min-height' => 141, :'min-width' => 310 }
+      .handle
+      %form{ :action => "/search", :method => "post", :name => "search" }
+        .textarea-container
+          %textarea{ :cols => "50", :rows => "20", :name => "query", :id => "query" }
+            = request.cookies['traw_query'].to_s
+        .below-textarea
+          %input{ :type => "button", :value => "Search", :onclick => "sendSearch()" }
+          %input{ :type => "button", :value => "Annotate", :onclick => "sendAnnotateQuery()" }
+          %input{ :type => "button", :value => "Clear search", :onclick => "clearSearch()" }
+          %input{ :type => "button", :value => "Export data table", :onclick => "sendDataExport()" }
+          %input{ :type => "button", :value => "Export subcorpus", :onclick => "location='/export_subcorpus/subcorpus.json'" }
+          #searchresult
+            = controller.search_result.text
+
+    #filter.box{ :'min-height' => 131, :'min-width' => 220 }
+      .handle
+      %form{ :action => "/filter", :method => "post", :name => "filter" }
+        .textarea-container
+          %textarea{ :cols => "50", :rows => "4", :name => "filterfield", :id => "filterfield" }
+            = request.cookies['traw_filter'].to_s
+        .below-textarea
+          %table
+            %tr
+              %td
+                %input{ :id => 'hide rest', :type => "button", :value => "Hide rest", :onclick => "sendFilter('hide rest')", :class => request.cookies['traw_filter_mode'].to_s == 'hide rest' ? 'selected_filter_mode' : '' }
+              %td
+                %input{ :id => 'hide selected', :type => "button", :value => "Hide defined", :onclick => "sendFilter('hide selected')", :class => request.cookies['traw_filter_mode'].to_s == 'hide selected' ? 'selected_filter_mode' : '' }
+            %tr
+              %td
+                %input{ :id => 'filter rest', :type => "button", :value => "Filter rest", :onclick => "sendFilter('filter rest')", :class => request.cookies['traw_filter_mode'].to_s == 'filter rest' ? 'selected_filter_mode' : '' }
+              %td
+                %input{ :id => 'filter selected', :type => "button", :value => "Filter defined", :onclick => "sendFilter('filter selected')", :class => request.cookies['traw_filter_mode'].to_s == 'filter selected' ? 'selected_filter_mode' : '' }
+            %tr
+              %td{ :colspan => "2" }
+                %input{ :id => 'display all', :type => "button", :value => "Display all", :onclick => "sendFilter('display all')", :style => "width:100%", :class => request.cookies['traw_filter_mode'].to_s == 'display all' ? 'selected_filter_mode' : '' }
+
+    #log.box{ :'min-height' => 90, :'min-width' => 400 }
+      .handle
+      .content
+        = haml :log_table, :locals => {:log => controller.log}
+
+    #help.box{ :'min-height' => 45, :'min-width' => 120 }
+      .handle
+      .content
+        %h3 Key commands
+        %ul
+          %li scale the graph: ctrl + shift + -/+/0
+          %li scroll the graph: ctrl + shift + arrows/Home/End/PgUp/PgDown
+          %li navigate sentences: alt + arrows/Home/End
+          %li show/hide help window: F1
+          %li show/hide text and sentence annotations: F2
+          %li show/hide element IDs: F4
+          %li show/hide filter window: F6
+          %li show/hide search window: F7
+          %li show/hide log window: F8
+          %li show/hide navigation window: F9
+        %h3 Command line commands
+        %h4 Data and navigation
+        %ul
+          %li load file: <i>load file_name_or_path</i>
+          %li add corpus part: <i>add file_name_or_path</i>
+          %li append file: <i>append file_name_or_path</i>
+          %li save workspace to file: <i>save (file_name_or_path)</i>
+          %li clear workspace: <i>clear</i>
+          %li create new sentence: <i>ns sentence_name</i>
+          %li go to sentence: <i>s sentence</i>
+          %li delete sentence: <i>del (sentence_name)</i>
+          %li import: <i>import format name</i>
+          %li export: <i>export format name</i>
+          %li edit layer configuration: <i>config</i>
+          %li edit tagset: <i>tagset</i>
+          %li edit makros: <i>makros</i>
+          %li edit metadata: <i>metadata</i>
+          %li edit annotators: <i>annotators</i>
+          %li edit file settings: <i>file</i>
+          %li switch annotators: <i>annotator (annotator_name)</i>
+        %h4 Annotation
+        %ul
+          %li new node: <i>n key:value key:value ...</i>
+          %li new edge: <i>e start end key:value key:value ...</i>
+          %li annotate: <i>a target target ... key:value key:value ...</i>
+          %li set layer: <i>l target target ... layer_shortcut</i>
+          %li delete: <i>d target target ...</i>
+          %li group nodes under new mother node: <i>g node node ... key:value key:value ...</i>
+          %li attach new child node: <i>h node1 node2 ... key:value key:value ...</i>
+          %li insert node into edge: <i>ni edge key:value key:value ...</i>
+          %li delete node and in/out edges: <i>di node</i> or <i>do node</i>
+          %li tokenise (and append): <i>t A string separated by spaces .</i>
+          %li tokenise and insert before: <i>tb token A string separated by spaces .</i>
+          %li tokenise and insert after: <i>ta token A string separated by spaces .</i>
+
+    #modal-background
+      #modal-content

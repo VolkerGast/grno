@@ -1,0 +1,40 @@
+%tbody{:no => i}
+  %tr
+    %td
+      %label{:for => "combinations[#{i}[name]]"} Name
+    %td
+      %input{ :name => "combinations[#{i}[name]]", :type => 'text', :value => combination.name }
+  %tr
+    %td
+      %label{:for => "combinations[#{i}[layers]]"} Layers
+    %td
+      - layers.each_with_index do |layer, ii|
+        - if combination.layers.include?(layer.shortcut)
+          %input{ :name => "combinations[#{i}[layers[#{ii}]]]", :type => 'checkbox', :value => layer.shortcut, :checked => 'checked' }
+        - else
+          %input{ :name => "combinations[#{i}[layers[#{ii}]]]", :type => 'checkbox', :value => layer.shortcut }
+        %label{:for => "combinations[#{i}[layers[#{ii}]]]"}
+          = layer.shortcut
+        %br
+  %tr
+    %td
+      %label{:for => "combinations[#{i}[shortcut]]"} Shortcut
+    %td
+      %input{ :name => "combinations[#{i}[shortcut]]", :type => 'text', :value => combination.shortcut }
+  %tr
+    %td
+      %label{:for => "combinations[#{i}[color]]"} Color
+    %td
+      %input{ :name => "combinations[#{i}[color]]", :type => 'color', :value => combination.color }
+  %tr
+    %td
+      %label{:for => "combinations[#{i}[weight]]"} Edge weight
+    %td
+      %input{ :name => "combinations[#{i}[weight]]", :type => 'number', :value => combination.weight }
+  %tr
+    %td{:colspan => 2}
+      %button{:onclick => 'removeElement("tbody", this); return false;'}
+        remove
+  %tr
+    %td{:colspan => 2}
+      %hr

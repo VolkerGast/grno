@@ -1,0 +1,21 @@
+default_color: '#7f7f7f'
+layers:
+  -
+    name: functional layer
+    shortcut: f
+    color: '#00cc00'
+    weight: 1
+  -
+    name: structural layer
+    shortcut: s
+    color: '#0000ff'
+    weight: 10
+combinations:
+  -
+    name: fs layer
+    shortcut: fs
+    color: '#000000'
+    weight: 10
+    layers:
+      - f
+      - s
